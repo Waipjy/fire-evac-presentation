@@ -344,6 +344,11 @@ hooks.problem = {enter:problemPlay, leave:() => cancelAnimationFrame(probRAF)};
 $("#probPlay").onclick = problemPlay;
 
 
+/* ================= slide: motivation ================= */
+let mvRAF = 0;
+hooks.motive = {enter:() => { cancelAnimationFrame(mvRAF); const t0 = performance.now(); const el = $("#mvNum");
+  (function f(t){ const u = Math.min(1, (t-t0)/(reduce ? 1 : 1600)); el.textContent = "+" + Math.round(30*(1-Math.pow(1-u, 3))); if (u < 1) mvRAF = requestAnimationFrame(f); })(t0); }};
+
 /* ================= slide: ideal vs demo ================= */
 const VS = [
   {t:"資料傳輸", real:"LoRa 無線：傳得遠、省電，不依賴大樓 Wi-Fi", demo:"筆電開 Wi-Fi 熱點", why:"火場可能停電、基地台失效或網路壅塞；模型只有幾十公分，Wi-Fi 開發最快。",
