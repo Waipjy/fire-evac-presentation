@@ -213,8 +213,7 @@ iframe.console{flex:1;width:100%;border:1px solid var(--line);border-radius:14px
 .mv-bar{display:grid;grid-template-columns:118px 1fr 76px;gap:12px;align-items:center;font-size:17px}
 .mv-bar b{height:18px;background:var(--panel2);border-radius:9px;overflow:hidden}
 .mv-bar i{display:block;height:100%;width:0;background:var(--exit);border-radius:9px;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
-.mv-bar.bad i{background:var(--fire)}
-.mv-bar:not(.bad) i{transition-delay:.5s}
+.mv-bar.bad i{background:var(--fire);transition-delay:.5s}
 .slide.on .mv-bar i{width:var(--w)}
 .mv-bar em{font-style:normal;font-family:var(--mono);text-align:right}
 .mv-haz{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
@@ -287,15 +286,16 @@ iframe.console{flex:1;width:100%;border:1px solid var(--line);border-radius:14px
   <h2>火場的環境會變，逃生指示卻不會</h2>
   <div class="mv">
     <div class="panel mv-stat">
-      <span class="mute" style="font-size:18px">商場尖峰時段火災模擬：把約 30% 的人導向次要出口</span>
-      <div class="mv-big" style="color:var(--exit)"><span id="mvNum">−0</span><small>%</small></div>
-      <span style="font-size:22px">總疏散時間再縮短約一成</span>
+      <span class="mute" style="font-size:18px">大型商場尖峰時段火災模擬：當一個主要出口被封鎖</span>
+      <div class="mv-big"><span id="mvNum">+0</span><small>%</small></div>
+      <span style="font-size:22px">總疏散時間增加約三成，多出 231 秒</span>
       <div class="mv-bars">
-        <span class="mute" style="font-size:15px">中庭與主通道平均人員密度（人/m²）</span>
-        <div class="mv-bar bad"><span>未分流</span><b><i style="--w:100%"></i></b><em>2.8</em></div>
-        <div class="mv-bar"><span>分流後</span><b><i style="--w:71.4%"></i></b><em>2.0</em></div>
+        <span class="mute" style="font-size:15px">全棟總疏散時間（秒）</span>
+        <div class="mv-bar"><span>出口全開</span><b><i style="--w:77.2%"></i></b><em>782</em></div>
+        <div class="mv-bar bad"><span>主要出口封鎖</span><b><i style="--w:100%"></i></b><em>1013</em></div>
       </div>
-      <span class="mute" style="font-size:14px;line-height:1.5">分流方式：語音廣播或動態指引。資料來源：亳州萬達廣場火災疏散模擬研究（2026，ScienceDirect）</span>
+      <span class="mute" style="font-size:15px;line-height:1.55">樓梯與走廊成為瓶頸：密度達 3 人/m²，步行速度降到 0.15 m/s。</span>
+      <span class="mute" style="font-size:13px;line-height:1.5">Tian D. et al., Study on personnel movement and evacuation time in large shopping mall fires, Ain Shams Engineering Journal 17 (2026) 103905</span>
     </div>
     <div class="col" style="flex:1.25;gap:18px">
       <div class="panel col" style="gap:14px;flex:1;justify-content:center">

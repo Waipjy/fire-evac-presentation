@@ -347,7 +347,7 @@ $("#probPlay").onclick = problemPlay;
 /* ================= slide: motivation ================= */
 let mvRAF = 0;
 hooks.motive = {enter:() => { cancelAnimationFrame(mvRAF); const t0 = performance.now(); const el = $("#mvNum");
-  (function f(t){ const u = Math.min(1, (t-t0)/(reduce ? 1 : 1600)); el.textContent = "−" + Math.round(10*(1-Math.pow(1-u, 3))); if (u < 1) mvRAF = requestAnimationFrame(f); })(t0); }};
+  (function f(t){ const u = Math.min(1, (t-t0)/(reduce ? 1 : 1600)); el.textContent = "+" + Math.round(30*(1-Math.pow(1-u, 3))); if (u < 1) mvRAF = requestAnimationFrame(f); })(t0); }};
 
 /* ================= slide: ideal vs demo ================= */
 const VS = [
