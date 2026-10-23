@@ -154,7 +154,14 @@ canvas.fill{width:100%;height:100%;display:block}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:16px;margin:0}
 .kv dt{color:var(--mute)} .kv dd{margin:0}
 iframe.console{flex:1;width:100%;border:1px solid var(--line);border-radius:14px;background:var(--night)}
-.tl{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;flex:1}
+.tl{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;position:relative}
+.tl .panel{padding:22px 24px 26px;border-top:4px solid var(--exit)}
+.tl .panel:last-child{border-top-color:var(--amber)}
+.figs{flex:1;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;gap:20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0}
+.figs .stat{align-items:flex-start}
+.figs .big{font-size:104px}
+.figs .lbl{font-size:18px}
+.figs .sub{font-size:15px;color:var(--mute)}
 .tl .panel{display:flex;flex-direction:column;gap:10px}
 .tl .ph{font-family:var(--display);font-size:20px;letter-spacing:.1em;color:var(--exit)}
 .tl ul{margin:0;padding-left:22px;font-size:21px;line-height:1.9;color:var(--mute)}
@@ -165,11 +172,11 @@ iframe.console{flex:1;width:100%;border:1px solid var(--line);border-radius:14px
 .plain>b.ic::before{content:"";position:absolute;inset:4px;background:#1b1300;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 21h6v-1.5H9V21zm3-19a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 21h6v-1.5H9V21zm3-19a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z'/%3E%3C/svg%3E") center/contain no-repeat}
 .plain em{font-style:normal;color:var(--ink)}
 .trio{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;flex:1;min-height:0}
-.trio .panel{display:flex;flex-direction:column;gap:14px;padding:26px 28px}
+.trio .panel{display:flex;flex-direction:column;justify-content:center;gap:16px;padding:30px 32px}
 .trio .n{font-family:var(--mono);font-size:16px;color:var(--exit)}
 .trio h3{font-size:40px}
-.trio p{margin:0;font-size:22px;line-height:1.7;color:var(--mute)}
-.trio svg{width:100%;height:210px}
+.trio p{margin:0;font-size:23px;line-height:1.7;color:var(--mute)}
+.trio svg{width:100%;height:260px}
 .todo{flex:1;border:2px dashed var(--line);border-radius:18px;display:grid;place-items:center;color:var(--mute);font-size:22px;text-align:center;line-height:1.8}
 .cmp{width:100%;border-collapse:separate;border-spacing:0;font-size:19px;line-height:1.45}
 .cmp th{font:600 16px var(--body);color:var(--mute);text-align:left;padding:0 18px 12px;letter-spacing:.06em}
@@ -347,9 +354,9 @@ iframe.console{flex:1;width:100%;border:1px solid var(--line);border-radius:14px
 <section class="slide" data-name="system">
   <span class="kick">系統架構</span>
   <h2>從鏡頭到燈號，一個循環不到一秒</h2>
-  <svg id="pipe" viewBox="0 0 1408 420" style="flex:none;height:320px"></svg>
+  <svg id="pipe" viewBox="0 0 1408 420" style="flex:1;min-height:0;width:100%"></svg>
   <div class="panel" id="pipeInfo"></div>
-  <p class="plain"><b class="ic" title="白話說明" aria-label="白話說明"></b><span><em>YOLOv7-tiny</em> 是一種很輕量的物體辨識 AI，小到能直接在開發板上跑；<em>邊緣運算</em>就是在鏡頭旁邊就把畫面看懂，只送出「哪裡有什麼」的結果。</span></p>
+  <p class="plain" style="margin-top:-8px"><b class="ic" title="白話說明" aria-label="白話說明"></b><span><em>YOLOv7-tiny</em> 是一種很輕量的物體辨識 AI，小到能直接在開發板上跑；<em>邊緣運算</em>就是在鏡頭旁邊就把畫面看懂，只送出「哪裡有什麼」的結果。</span></p>
 </section>
 
 <!-- 4 model -->
@@ -499,12 +506,12 @@ iframe.console{flex:1;width:100%;border:1px solid var(--line);border-radius:14px
     <div class="panel done"><span class="ph">已完成 · 決策</span><ul><li>投影 → 走廊狀態</li><li>煙霧預測 + 風險尋路</li><li>中控台與情境回放</li></ul></div>
     <div class="panel"><span class="ph" style="color:var(--amber)">下一步 · 實體</span><ul><li>列印一樓並疊合</li><li>線香實拍 200–300 張補訓</li><li>轉檔燒入 8 片 HUB、接 LED</li><li>筆電 + 熱點完整 Demo</li></ul></div>
   </div>
-  <div class="row" style="flex:none;gap:56px;margin-top:8px;padding-top:22px;border-top:1px solid var(--line)">
-    <div class="stat"><span class="lbl">鏡頭</span><span class="big">8</span></div>
-    <div class="stat"><span class="lbl">走廊段</span><span class="big">24</span></div>
-    <div class="stat"><span class="lbl">路口燈號</span><span class="big">18</span></div>
-    <div class="stat"><span class="lbl">偵測類別</span><span class="big">6</span></div>
-    <div class="stat"><span class="lbl">mAP@0.5</span><span class="big" style="color:var(--exit)">0.756</span></div>
+  <div class="figs">
+    <div class="stat"><span class="lbl">鏡頭</span><span class="big">8</span><span class="sub">每層 4 顆</span></div>
+    <div class="stat"><span class="lbl">走廊段</span><span class="big">24</span><span class="sub">每層 12 段</span></div>
+    <div class="stat"><span class="lbl">路口燈號</span><span class="big">18</span><span class="sub">每層 9 個路口</span></div>
+    <div class="stat"><span class="lbl">偵測類別</span><span class="big">6</span><span class="sub">5 種障礙物 + 煙</span></div>
+    <div class="stat"><span class="lbl">辨識分數 mAP@0.5</span><span class="big" style="color:var(--exit)">0.756</span><span class="sub">滿分 1</span></div>
   </div>
 </section>
 

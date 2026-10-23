@@ -191,7 +191,7 @@ function init3D(){
   Object.assign(T, {R, scene, cam, ctl, root, parts:{}, dyn:new THREE.Group(), mode:null, mount:null, clock:new THREE.Clock()});
   root.add(T.dyn);
   const M = (c, o = {}) => new THREE.MeshStandardMaterial({color:c, roughness:.75, metalness:0, ...o});
-  T.mat = {tray:M(0xc9ced4), lid:M(0x9fb4c9, {transparent:true, opacity:.92}), seal:M(0x5aa2ff), pods:M(0xd9dbd8), boards:M(0xf0e9d6), pcb:M(0x1f7a45, {roughness:.5}),
+  T.mat = {dark:M(0x4a5058, {roughness:.6}), darkPods:M(0x3d434a, {roughness:.6}), tray:M(0xc9ced4), lid:M(0x9fb4c9, {transparent:true, opacity:.92}), seal:M(0x5aa2ff), pods:M(0xd9dbd8), boards:M(0xf0e9d6), pcb:M(0x1f7a45, {roughness:.5}),
     spacers:M(0xc8d0d8), stairs:M(0xe8b04a), obsDark:M(0x2a2f36, {roughness:.6}), obsLight:M(0xe9e9e6), gate:M(0xff4a3d, {roughness:.5})};
   // geometry ships as base64 arrays inside a JSON file (no data: URL fetches, no loader plugin)
   const b64 = t => { const bin = atob(t); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; };
@@ -226,6 +226,10 @@ function setMode(mode, force){
   if (!T.R) return; if (T.mode === mode && !force) return; T.mode = mode; if (!T.ready) return;
   const P = T.parts; const show = (k, v) => { if (P[k]) P[k].visible = v; };
   for (const k in P) if (!k.startsWith("obs_")){ P[k].visible = true; P[k].position.set(0, 0, 0); }
+  // explanatory colours on the model slide, the real black print everywhere else
+  const real = mode !== "model"; const setM = (k, m) => { if (P[k]) P[k].children[0].material = m; };
+  for (const k of ["F1_tray","F2_tray"]) setM(k, real ? T.mat.dark : T.mat.tray);
+  for (const k of ["F1_pods","F2_pods"]) setM(k, real ? T.mat.darkPods : T.mat.pods);
   T.ctl.autoRotate = false;
   if (mode === "model"){ T.dyn.visible = false; asmApply(asm.k, true); T.cam.position.set(-620, 520, 700); T.ctl.target.set(0, 140, 0); }
   else { // cover + sim
