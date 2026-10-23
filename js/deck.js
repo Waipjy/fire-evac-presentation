@@ -34,8 +34,23 @@ function go(i){
 }
 $("#prev").onclick = () => go(cur-1); $("#next").onclick = () => go(cur+1);
 $("#fs").onclick = () => { try { const d = document.documentElement; const p = document.fullscreenElement ? document.exitFullscreen() : d.requestFullscreen ? d.requestFullscreen() : null; if (p && p.catch) p.catch(() => {}); } catch (e) {} };
+const KEYS = [
+  ["全部頁面"], ["← →", "上一頁 / 下一頁"], ["Home End", "第一頁 / 最後一頁"], ["F", "全螢幕"], ["?", "顯示這個說明"],
+  ["頁面內互動"], ["↑ ↓", "切換這頁的選項：比較項目、鏡頭、組裝步驟、時間點、訓練指標、架構節點"],
+  ["P", "播放：問題動畫、組裝、Dijkstra 擴散、情境模擬"], ["E", "實體模型：分解檢視"], ["B", "訓練資料：顯示 / 隱藏標註框"],
+  ["W", "情境模擬：人員移動"], ["C", "情境模擬：關閉一樓東鏡頭"], ["R", "尋路：清除全部"], ["1–6", "偵測頁與情境模擬：跳到第 1–6 個時間點"], ["1 2", "鏡頭頁：切換樓層"]];
+$("#keyList").innerHTML = KEYS.map(k => k.length === 1 ? `<span class="sec">${k[0]}</span>` : `<dt>${k[0].split(" ").map(x => `<kbd>${x}</kbd>`).join("")}</dt><dd>${k[1]}</dd>`).join("");
+const keysToggle = on => { $("#keys").hidden = !(on ?? $("#keys").hidden); };
+$("#keyBtn").onclick = () => keysToggle(); $("#keys").onclick = e => { if (e.target.id === "keys") keysToggle(false); };
+// move the "on" class within a segmented control / button list by one step
+function cycleSeg(sel, d){ const bs = $$(sel); if (!bs.length) return; let i = bs.findIndex(b => b.classList.contains("on")); i = (i + d + bs.length) % bs.length; bs[i].click(); }
 addEventListener("keydown", e => {
   if (e.target.closest("input,select,textarea,iframe")) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === "?" || (e.key === "/" && e.shiftKey)){ e.preventDefault(); keysToggle(); return; }
+  if (e.key === "Escape"){ keysToggle(false); return; }
+  if (e.key === "f" || e.key === "F"){ $("#fs").click(); return; }
+  const h = hooks[slides[cur]?.dataset.name]; if (h && h.key && h.key(e) !== false){ e.preventDefault(); return; }
   if (["ArrowRight","PageDown"," "].includes(e.key)){ e.preventDefault(); go(cur+1); }
   if (["ArrowLeft","PageUp"].includes(e.key)){ e.preventDefault(); go(cur-1); }
   if (e.key === "Home") go(0); if (e.key === "End") go(slides.length-1);
@@ -344,7 +359,7 @@ function problemPlay(){
   (function f(t){ const u = Math.min(1, (t-t0)/(reduce ? 1 : 4200)); for (const S of [A, B]){ const [x, y] = at(S.path, u); S.p.setAttribute("cx", x); S.p.setAttribute("cy", y); S.end.setAttribute("opacity", u >= 1 ? 1 : 0); }
     if (u < 1) probRAF = requestAnimationFrame(f); })(t0);
 }
-hooks.problem = {enter:problemPlay, leave:() => cancelAnimationFrame(probRAF)};
+hooks.problem = {enter:problemPlay, leave:() => cancelAnimationFrame(probRAF), key:e => { if ("pPrR".includes(e.key)) problemPlay(); else return false; }};
 $("#probPlay").onclick = problemPlay;
 
 
@@ -371,7 +386,7 @@ const VS = [
    r:[0,1,2].map(i=>`<g style="animation:slidein .8s ${i*.4}s both"><rect x="${70+i*40}" y="${50+i*30}" width="300" height="180" rx="8" fill="#2a3a4b" stroke="#e9eff4" stroke-width="3"/><path d="M${90+i*40} ${210+i*30}l80-70 60 50 50-40 90 60z" fill="#5b6b79"/><circle cx="${330+i*40}" cy="${90+i*30}" r="18" fill="#ffb020" opacity=".8"/></g>`).join(""),
    d:`<g fill="none" stroke="#8fa2b3" stroke-width="2" stroke-dasharray="600" stroke-dashoffset="600" style="animation:draw 2.5s ease-out infinite"><path d="M60 250L180 170H340L460 250Z M180 170V60H340V170 M60 250V120L180 60 M460 250V120L340 60"/></g><rect x="220" y="190" width="70" height="40" fill="#e9eff4"/><rect x="214" y="184" width="82" height="52" fill="none" stroke="#ffb020" stroke-width="3" style="animation:chase 2.5s infinite"/><rect x="214" y="166" width="58" height="18" fill="#ffb020"/><text x="220" y="180" font-size="13" fill="#1b1300" font-weight="700">櫃子</text>`},
   {t:"建築", real:"匯入任何樓層平面圖", demo:"兩層、田字形走廊", why:"3D 列印的尺寸和時間有限；田字形已經有環狀與十字走廊，足以示範改道。",
-   r:`<g fill="none" stroke="#8fa2b3" stroke-width="5" stroke-dasharray="1400" stroke-dashoffset="1400" style="animation:draw 3s ease-out forwards"><path d="M40 40H480V270H40Z M40 140H200V40 M200 140V270 M200 200H330V270 M330 140V200 M330 140H480 M400 40V140 M120 200H200 M260 40V90H330V140"/></g><path d="M60 250H190V160H320" fill="none" stroke="#2fd27f" stroke-width="5" stroke-dasharray="10 8" style="animation:flow 1s linear infinite"/>`,
+   r:`<rect x="190" y="140" width="290" height="30" fill="#1f2c38"/><rect x="40" y="140" width="150" height="30" fill="#1f2c38"/><rect x="190" y="40" width="30" height="230" fill="#1f2c38"/><g fill="#141e29" stroke="#8fa2b3" stroke-width="4" stroke-dasharray="460" stroke-dashoffset="460" style="animation:draw 1.6s ease-out forwards"><rect x="40" y="40" width="75" height="100" style="animation:draw 1.6s ease-out forwards;animation-delay:0.00s"/><rect x="115" y="40" width="75" height="100" style="animation:draw 1.6s ease-out forwards;animation-delay:0.15s"/><rect x="220" y="40" width="110" height="100" style="animation:draw 1.6s ease-out forwards;animation-delay:0.30s"/><rect x="330" y="40" width="70" height="100" style="animation:draw 1.6s ease-out forwards;animation-delay:0.45s"/><rect x="400" y="40" width="80" height="100" style="animation:draw 1.6s ease-out forwards;animation-delay:0.60s"/><rect x="40" y="170" width="150" height="100" style="animation:draw 1.6s ease-out forwards;animation-delay:0.75s"/><rect x="220" y="170" width="130" height="100" style="animation:draw 1.6s ease-out forwards;animation-delay:0.90s"/><rect x="350" y="170" width="130" height="100" style="animation:draw 1.6s ease-out forwards;animation-delay:1.05s"/></g><rect x="192" y="262" width="26" height="12" fill="#0a8a4b"/><path d="M450 155H205V262" fill="none" stroke="#2fd27f" stroke-width="5" stroke-dasharray="10 8" style="animation:flow 1s linear infinite"/><circle cx="450" cy="155" r="8" fill="#ffb020"/><text x="205" y="292" text-anchor="middle" fill="#8fa2b3" font-size="15">出口</text>`,
    d:`<g transform="translate(130 20)"><rect x="0" y="0" width="260" height="260" rx="6" fill="#18222c" stroke="#7e8d99" stroke-width="8"/>${[[20,20],[140,20],[20,140],[140,140]].map(([x,y])=>`<rect x="${x}" y="${y}" width="100" height="100" fill="#2a3a4b"/>`).join("")}</g><text x="260" y="296" text-anchor="middle" fill="#8fa2b3" font-size="15">240 mm · 兩層疊放</text>`},
 ];
 const vs = {k:0, timer:null};
@@ -382,7 +397,7 @@ function vsShow(k){ vs.k = k; const v = VS[k];
 function vsAuto(on){ clearInterval(vs.timer); if (on && !reduce) vs.timer = setInterval(() => vsShow((vs.k+1)%VS.length), 6000); }
 $("#vsTabs").innerHTML = VS.map(v => `<button role="tab">${v.t}<i></i></button>`).join("");
 $$("#vsTabs button").forEach((b, i) => b.onclick = () => { vsShow(i); vsAuto(false); $$("#vsTabs button i").forEach(x => x.style.animationPlayState = "paused"); });
-hooks.ideal = {enter:() => { vsShow(0); vsAuto(true); }, leave:() => vsAuto(false)};
+hooks.ideal = {enter:() => { vsShow(0); vsAuto(true); }, leave:() => vsAuto(false), key:e => { const d = e.key === "ArrowDown" ? 1 : e.key === "ArrowUp" ? -1 : 0; if (!d) return false; vsShow((vs.k + d + VS.length) % VS.length); vsAuto(false); }};
 
 /* ================= slide: pipeline ================= */
 const PIPE = [
@@ -409,7 +424,7 @@ function pipeDraw(){
     g.addEventListener("click", pick); g.addEventListener("keydown", e => { if (e.key === "Enter") pick(); });
     if (n.id === "srv") pick(); }
 }
-hooks.system = {enter:pipeDraw};
+hooks.system = {enter:pipeDraw, key:e => { const d = e.key === "ArrowDown" ? 1 : e.key === "ArrowUp" ? -1 : 0; if (!d) return false; const ns = $$("#pipe .node"); let i = ns.findIndex(n => n.classList.contains("sel")); i = (i + d + ns.length) % ns.length; ns[i].dispatchEvent(new Event("click")); }};
 
 /* ================= slide: physical model / assembly ================= */
 const ASM = [
@@ -444,7 +459,7 @@ function asmApply(k, instant){
   const parts = [["#dfe3e7","樓層","2"],["#9fb4c9","天花板","2"],["#5aa2ff","封孔板","2"],["#f1f1ee","麵包版座","8"],["#1f7a45","HUB 8735 + 鏡頭","8"],["#c8d0d8","支撐柱","4"],["#e8b04a","樓梯塔（上下段）","2 座"]];
   $("#partList").innerHTML = parts.map(p => `<span class="sw" style="background:${p[0]}"></span><span>${p[1]}</span><span class="n">× ${p[2]}</span>`).join("");
 })();
-hooks.model = {enter:() => asmApply(asm.k, true)};
+hooks.model = {enter:() => asmApply(asm.k, true), key:e => { if (e.key === "ArrowDown") asmApply(Math.min(ASM.length-1, asm.k+1)); else if (e.key === "ArrowUp") asmApply(Math.max(0, asm.k-1)); else if ("pP".includes(e.key)) $("#asmPlay").click(); else if ("eE".includes(e.key)) $("#asmExplode").click(); else return false; }};
 
 /* ================= camera model (equisolid fisheye, ported from evac.py) ================= */
 const CAMS = {N:0, W:90, E:-90, S:180}; const IMG_W = 640, IMG_H = 360, SW = 5.6;
@@ -486,7 +501,7 @@ function segPick(sel, cb){ $$(sel+" .btn").forEach(b => b.onclick = () => { $$(s
 segPick("#covFloor", v => { cov.fl = +v; covDraw(); }); segPick("#covCam", v => { cov.cam = v; covDraw(); });
 $("#tilt").oninput = e => { cov.tilt = +e.target.value; $("#tiltO").textContent = cov.tilt+"°"; covDraw(); };
 $("#hfov").oninput = e => { cov.hfov = +e.target.value; $("#hfovO").textContent = cov.hfov+"°"; covDraw(); };
-hooks.camera = {enter:() => requestAnimationFrame(covDraw)};
+hooks.camera = {enter:() => requestAnimationFrame(covDraw), key:e => { if (e.key === "ArrowDown") cycleSeg("#covCam .btn", 1); else if (e.key === "ArrowUp") cycleSeg("#covCam .btn", -1); else if (e.key === "1" || e.key === "2") $$("#covFloor .btn")[+e.key-1].click(); else return false; }};
 
 /* ================= slide: dataset ================= */
 const CLS = [["櫃子","#ffb020"],["紙箱","#5aa2ff"],["桌椅","#c58cff"],["瓦礫","#e07a5f"],["閘門","#ff4a3d"],["煙","#d6dee6"]];
@@ -504,7 +519,7 @@ function galDraw(){
 function galBig(i){ const g = $("#gal"); const on = galState.big === i ? null : i; galState.big = on;
   [...g.children].forEach((b, k) => { b.classList.toggle("on", k === on); b.style.gridColumn = k === on ? "span 2" : ""; b.style.gridRow = k === on ? "span 2" : ""; }); }
 $("#galBoxes").onclick = e => { galState.boxes = !galState.boxes; e.target.classList.toggle("on", galState.boxes); e.target.setAttribute("aria-pressed", galState.boxes); galDraw(); };
-hooks.data = {enter:galDraw};
+hooks.data = {enter:galDraw, key:e => { if ("bB".includes(e.key)) $("#galBoxes").click(); else return false; }};
 
 /* ================= slide: training ================= */
 let curveKey = "map50";
@@ -530,7 +545,7 @@ const M_PLAIN = {map50:"<b class='ic' title='白話說明' aria-label='白話說
   R:"<b class='ic' title='白話說明' aria-label='白話說明'></b><span><em>Recall 召回率</em>：真正存在的障礙物裡，AI 找到了幾成。越高代表越少漏掉。</span>",
   loss:"<b class='ic' title='白話說明' aria-label='白話說明'></b><span><em>損失</em>是 AI 答錯的程度，訓練就是讓它一直往下降。曲線變平代表再訓練下去進步有限。</span>"};
 segPick("#mSel", k => { curveKey = k; curveDraw(); $("#mPlain").innerHTML = M_PLAIN[k]; });
-hooks.train = {enter:() => { curveDraw(); barsDraw(); $("#mPlain").innerHTML = M_PLAIN[curveKey]; }};
+hooks.train = {enter:() => { curveDraw(); barsDraw(); $("#mPlain").innerHTML = M_PLAIN[curveKey]; }, key:e => { if (e.key === "ArrowDown") cycleSeg("#mSel .btn", 1); else if (e.key === "ArrowUp") cycleSeg("#mSel .btn", -1); else return false; }};
 
 /* ================= slide: detections -> corridor state ================= */
 const det = {k:3, cam:"2N"};
@@ -557,7 +572,7 @@ function detDraw(){
 })();
 function D_steps(){ return ["00:00","00:30","01:00","01:30","02:00","02:30"]; }
 segPick("#dStep", v => { det.k = +v; detDraw(); }); segPick("#dCam", v => { det.cam = v; detDraw(); });
-hooks.detect = {enter:detDraw};
+hooks.detect = {enter:detDraw, key:e => { if (e.key === "ArrowDown") cycleSeg("#dCam .btn", 1); else if (e.key === "ArrowUp") cycleSeg("#dCam .btn", -1); else if (/^[1-6]$/.test(e.key)) $$("#dStep .btn")[+e.key-1].click(); else return false; }};
 
 /* ================= slide: routing playground ================= */
 const rp = {st:null, W:W0(), edits:{}, waveT:null};
@@ -578,7 +593,7 @@ $("#rReset").onclick = () => { rp.edits = {}; rpDraw(); };
 $("#rwS").oninput = e => { rp.W.smoke = +e.target.value; $("#rwSO").textContent = e.target.value; rpDraw(); };
 $("#rwO").oninput = e => { rp.W.obs = +e.target.value; $("#rwOO").textContent = e.target.value; rpDraw(); };
 $("#rPred").onchange = e => { rp.W.predict = e.target.checked; rpDraw(); };
-hooks.routing = {enter:() => { if (!Object.keys(rp.edits).length){ rp.edits = {"F1:1-1-10": 1, "F1:10-11": 2, "F2:01-11": 2}; } rpDraw(); }, leave:() => clearInterval(rp.waveT)};
+hooks.routing = {key:e => { if ("pP".includes(e.key)) $("#rWave").click(); else if ("rR".includes(e.key)) $("#rReset").click(); else return false; }, enter:() => { if (!Object.keys(rp.edits).length){ rp.edits = {"F1:1-1-10": 1, "F1:10-11": 2, "F2:01-11": 2}; } rpDraw(); }, leave:() => clearInterval(rp.waveT)};
 
 /* ================= slide: linked simulation ================= */
 function simState(){ const st = analyse(clone(D.seq[SIM.k]), W0(), D.seq[SIM.k-1]);
@@ -611,7 +626,7 @@ function walkStep(dt){
     moved = true; if (p.mesh) p.mesh.position.set(p.x+fx(p.floor), p.y, fz(p.floor)); }
   walkAcc += dt; if (walkAcc > .25){ walkAcc = 0; simMaps(); if (SIM.people.some(p => p.out && p.mesh && p.mesh.parent)) drawPeople3D(); }
 }
-hooks.sim = {enter:() => { simSet(SIM.k); }, leave:stopSim};
+hooks.sim = {enter:() => { simSet(SIM.k); }, leave:stopSim, key:e => { if (e.key === "ArrowDown"){ stopSim(); simSet(Math.min(5, SIM.k+1), SIM.walking); } else if (e.key === "ArrowUp"){ stopSim(); simSet(Math.max(0, SIM.k-1), SIM.walking); } else if (/^[1-6]$/.test(e.key)){ stopSim(); simSet(+e.key-1, SIM.walking); } else if ("pP".includes(e.key)) $("#simPlay").click(); else if ("wW".includes(e.key)) $("#simWalk").click(); else if ("cC".includes(e.key)) $("#simCam").click(); else return false; }};
 hooks.cover = {enter:() => { if (SIM.k === 0){ SIM.k = 3; simSet(3); } }};
 hooks.end = {enter:() => { simSet(4); }};
 
