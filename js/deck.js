@@ -124,8 +124,8 @@ const clone = o => JSON.parse(JSON.stringify(o));
 /* ================= 2D map drawing (shared by detect / routing / sim slides) ================= */
 const heat = r => r < .3 ? "#d8c13a" : r < .6 ? "#f08a3c" : "#ff4a3d";
 function glyphSign(p, d){ const g = el("g", {}, p);
-  el("rect", {x:-7.5, y:-7.5, width:15, height:15, rx:3.5, fill:"#07120c", stroke:d === "X" ? "#ff4a3d" : (d === "DOWN" || d === "UP") ? "#9dc8ff" : "#4be79a", "stroke-width":1.3}, g);
-  if (d === "X") el("path", {d:"M-3.5,-3.5L3.5,3.5M-3.5,3.5L3.5,-3.5", stroke:"#ff4a3d", "stroke-width":2.3, "stroke-linecap":"round"}, g);
+  el("rect", {x:-7.5, y:-7.5, width:15, height:15, rx:3.5, fill:"#07120c", stroke:d === "X" ? "#3a4048" : (d === "DOWN" || d === "UP") ? "#9dc8ff" : "#4be79a", "stroke-width":1.3}, g);
+  if (d === "X"){}   // no safe route: every LED at this junction stays dark
   else if (d === "DOWN" || d === "UP") el("path", {d:d === "DOWN" ? "M-4.5,-4h3v3h3v3h3" : "M-4.5,4h3v-3h3v-3h3", fill:"none", stroke:"#9dc8ff", "stroke-width":1.9}, g);
   else el("path", {transform:`rotate(${{N:0, E:90, S:180, W:270}[d]})`, d:"M0,-5.5L4.6,-0.5H1.6V5H-1.6V-0.5H-4.6Z", fill:"#4be79a"}, g);
   return g; }
@@ -294,7 +294,7 @@ const GATES = [[], [], [], [], [[1,-51,-99]], [[1,-51,-99]]];
 function simApply(){
   if (!T.ready || !T.leds || !SIM.st) return; const st = SIM.st;
   for (const [k, g] of Object.entries(T.leds)){ const d = st.leds[k]; const u = g.userData; const [x, y] = jpos(st, u.f, u.i, u.j); g.position.set(x+fx(u.f), y, fz(u.f)+.2);
-    const isX = d === "X", stair = d === "DOWN" || d === "UP"; u.a.visible = !isX; u.x1.visible = u.x2.visible = isX;
+    const isX = d === "X", stair = d === "DOWN" || d === "UP"; u.a.visible = !isX; u.x1.visible = u.x2.visible = false; u.glow.visible = !isX;
     const col = isX ? 0xff4a3d : stair ? 0x9dc8ff : 0x4be79a; u.mat.color.setHex(col); u.glow.color.setHex(col);
     u.a.rotation.z = {N:0, E:-Math.PI/2, S:Math.PI, W:Math.PI/2, DOWN:Math.PI/2*(u.i < 0 ? 1 : -1), UP:0}[d] || 0; }
   T.obsGroup.clear();
@@ -379,7 +379,7 @@ const VS = [
   {t:"鏡頭", real:"熱影像鏡頭：看得穿濃煙，直接看到人和火源", demo:"一般魚眼鏡頭：煙淡時仍能辨識障礙物", why:"熱影像鏡頭一顆就要上萬元；模型只用線香，煙量小，一般鏡頭就看得清楚。真實火場的濃煙則需要熱影像。",
    r:`<defs><clipPath id="cvr"><rect x="30" y="20" width="460" height="260" rx="12"/></clipPath></defs><g clip-path="url(#cvr)"><rect x="30" y="20" width="460" height="260" fill="#1a0f2e"/><path d="M30 280 L200 150 H320 L490 280 Z" fill="#2a1446"/><path d="M30 20 L200 150 M490 20 L320 150 M200 150 V60 M320 150 V60 M200 60 H320" stroke="#3d2563" stroke-width="2" fill="none"/><rect x="200" y="60" width="120" height="90" fill="#3d2563" opacity=".35"/><radialGradient id="hot" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fffbe0"/><stop offset=".35" stop-color="#ffcf4a"/><stop offset=".7" stop-color="#ff6a2a"/><stop offset="1" stop-color="#ff6a2a" stop-opacity="0"/></radialGradient><ellipse cx="400" cy="150" rx="60" ry="70" fill="url(#hot)" style="animation:chase 1.6s infinite"/><g transform="translate(230 205) scale(1.05)"><circle cx="0" cy="-58" r="13" fill="#ffb347"/><path d="M-18 -42 Q0 -48 18 -42 L24 0 L14 0 L12 -20 L10 30 L2 30 L0 -2 L-2 30 L-10 30 L-12 -20 L-14 0 L-24 0 Z" fill="#ffb347"/></g><g transform="translate(300 180) scale(0.7)"><circle cx="0" cy="-58" r="13" fill="#ffd36b"/><path d="M-18 -42 Q0 -48 18 -42 L24 0 L14 0 L12 -20 L10 30 L2 30 L0 -2 L-2 30 L-10 30 L-12 -20 L-14 0 L-24 0 Z" fill="#ffd36b"/></g><g style="animation:drift 4s ease-in-out infinite alternate;filter:blur(14px)" opacity=".22" fill="#c8b6e8"><circle cx="160" cy="110" r="70"/><circle cx="300" cy="90" r="80"/><circle cx="420" cy="120" r="60"/></g><g font-size="14" font-weight="700"><rect x="190" y="98" width="82" height="22" rx="4" fill="#ffb347"/><text x="198" y="114" fill="#1a0f2e">人 36°C</text><rect x="420" y="70" width="64" height="22" rx="4" fill="#fffbe0"/><text x="428" y="86" fill="#1a0f2e">火源</text></g><text x="66" y="48" fill="#e6d7ff" font-size="15">熱影像　REC</text></g><rect x="30" y="20" width="460" height="260" rx="12" fill="none" stroke="#5b6b79" stroke-width="2"/><g fill="#ff4a3d"><circle cx="54" cy="42" r="5" style="animation:chase 1.2s infinite"/></g>`,
    d:`<defs><clipPath id="cvd"><rect x="30" y="20" width="460" height="260" rx="12"/></clipPath></defs><g clip-path="url(#cvd)"><rect x="30" y="20" width="460" height="260" fill="#121a21"/><path d="M30 280 L200 150 H320 L490 280 Z" fill="#26323d"/><path d="M30 20 L200 150 M490 20 L320 150 M200 150 V60 M320 150 V60 M200 60 H320" stroke="#3a4a59" stroke-width="2" fill="none"/><rect x="200" y="60" width="120" height="90" fill="#3a4a59" opacity=".35"/><g transform="translate(272 176)"><rect x="-34" y="-30" width="68" height="62" fill="#1c1f24" stroke="#5b6b79" stroke-width="2"/><rect x="-26" y="-20" width="52" height="4" fill="#5b6b79"/></g><g style="animation:drift 3s ease-in-out infinite alternate;filter:blur(16px)" fill="#a7b6c6" opacity=".8"><circle cx="140" cy="120" r="70" opacity=".55"/><circle cx="260" cy="95" r="80" opacity=".6"/><circle cx="390" cy="125" r="70" opacity=".5"/><circle cx="330" cy="170" r="50" opacity=".35"/></g><g style="animation:chase 2.4s infinite"><rect x="232" y="140" width="80" height="70" fill="none" stroke="#ffb020" stroke-width="3"/><rect x="232" y="120" width="86" height="20" fill="#ffb020"/><text x="238" y="135" font-size="13" font-weight="700" fill="#1b1300">櫃子 87%</text></g><text x="66" y="48" fill="#e9eff4" font-size="15">一般鏡頭　REC</text></g><rect x="30" y="20" width="460" height="260" rx="12" fill="none" stroke="#5b6b79" stroke-width="2"/><g fill="#ff4a3d"><circle cx="54" cy="42" r="5" style="animation:chase 1.2s infinite"/></g>`},
-  {t:"指示燈", real:"地面與牆面 LED 動態指示，接緊急電源", demo:"每個路口一組小 LED", why:"模型縮小到 1 : 100，空間只放得下一組方向燈，但傳達的資訊一樣：往哪走、此路不通。",
+  {t:"指示燈", real:"地面與牆面 LED 動態指示，接緊急電源", demo:"每個路口依方向各一顆小 LED，只亮正確方向", why:"模型縮小到 1 : 100，每個方向只放得下一顆小燈，但傳達的資訊一樣：往哪走、此路不通。",
    r:`<path d="M20 230H500" stroke="#2a3a4b" stroke-width="60"/>${Array.from({length:12},(_,i)=>`<path d="M${40+i*38} 222l14 8-14 8" fill="none" stroke="#2fd27f" stroke-width="5" stroke-linecap="round" style="animation:chase 1.4s ${i*.11}s infinite"/>`).join("")}<rect x="160" y="60" width="200" height="80" rx="8" fill="#0a8a4b"/><path d="M200 100h70m-20-20 20 20-20 20" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="315" cy="100" r="16" fill="#fff"/><text x="260" y="170" text-anchor="middle" fill="#8fa2b3" font-size="15">牆面標誌也能改方向</text>`,
    d:`<path d="M260 20V280M20 150H500" stroke="#2a3a4b" stroke-width="70"/><g transform="translate(260 150)"><rect x="-34" y="-34" width="68" height="68" rx="12" fill="#07120c" stroke="#4be79a" stroke-width="3"/><path d="M-20,0L0,-20V-8H20V8H0V20Z" fill="#4be79a" style="animation:chase 1.2s infinite"/></g><text x="260" y="292" text-anchor="middle" fill="#8fa2b3" font-size="15">每個路口一顆</text>`},
   {t:"訓練資料", real:"真實建築與火場影像", demo:"Blender 合成影像，之後補線香實拍", why:"不可能為了拍照真的放火；用模擬世界大量產生影像，再用少量實拍補足差距。",
@@ -405,8 +405,8 @@ const PIPE = [
   {id:"hub", x:290, y:150, w:220, t:"HUB 8735 Ultra", s:"YOLOv7-tiny 板上推論", info:"每顆鏡頭接一片 HUB 8735 Ultra，在板子上直接跑 YOLOv7-tiny，辨識 5 種障礙物和煙。只傳偵測框出去，不傳影像，頻寬很小。"},
   {id:"wifi", x:580, y:150, w:190, t:"Wi-Fi 熱點", s:"HTTP POST · JSON", info:"8 片 HUB 透過筆電熱點，每秒把偵測框用 HTTP POST 傳給伺服器；伺服器回傳該 HUB 負責的路口燈號。"},
   {id:"srv", x:840, y:60, w:260, t:"筆電伺服器", s:"投影 → 走廊狀態 → 尋路", info:"把每個偵測框的底部投影回地板，算出 24 段走廊的障礙率和煙濃度；加上煙霧擴散預測與起火點，從出口倒推 Dijkstra，得到每個路口的方向。"},
-  {id:"led", x:1170, y:20, w:220, t:"地面 LED × 18", s:"每個路口一組方向燈", info:"每層 9 個路口，每個路口一組地面方向燈：往東西南北、下樓、或打叉表示此路不通。"},
-  {id:"app", x:1170, y:250, w:220, t:"網頁中控台", s:"WebSocket 即時同步", info:"避難人員、消防員、無關人員用手機開同一個網頁：看自己的路線、風險熱點、受困位置，消防員還能點開鏡頭畫面。"},
+  {id:"led", x:1170, y:20, w:220, t:"地面 LED × 52", s:"每個方向一顆，只亮正確的", info:"每層 9 個路口、26 顆 LED：邊上路口 3 顆、角落 2 顆、中央 4 顆，樓梯所在的兩個角落各多一顆樓梯燈。只點亮正確方向；全部熄滅表示此路不通。"},
+  {id:"app", x:1170, y:250, w:220, t:"網頁中控台", s:"WebSocket 即時同步", info:"避難人員和消防員用手機開同一個網頁：看自己的路線、風險熱點、受困位置，消防員還能點開鏡頭畫面。"},
 ];
 function pipeDraw(){
   const svg = $("#pipe"); svg.innerHTML = ""; const by = Object.fromEntries(PIPE.map(n => [n.id, n]));
@@ -525,9 +525,9 @@ hooks.data = {enter:galDraw, key:e => { if ("bB".includes(e.key)) $("#galBoxes")
 let curveKey = "map50";
 function curveDraw(){
   const svg = $("#curve"); svg.innerHTML = ""; const rows = D.curve; const Wd = 820, Ht = 420, l = 60, r = 20, t = 20, b = 50;
-  const isLoss = curveKey === "loss"; const ymax = isLoss ? .18 : 1; const X = e => l + (Wd-l-r)*e/29, Y = v => t + (Ht-t-b)*(1-v/ymax);
+  const isLoss = curveKey === "loss"; const ymax = isLoss ? .18 : 1; const N = rows.length - 1; const X = e => l + (Wd-l-r)*e/N, Y = v => t + (Ht-t-b)*(1-v/ymax);
   for (let k = 0; k <= 5; k++){ const v = ymax*k/5; el("line", {x1:l, x2:Wd-r, y1:Y(v), y2:Y(v), class:"grid"}, svg); el("text", {x:l-10, y:Y(v)+5, "text-anchor":"end"}, svg).textContent = isLoss ? v.toFixed(2) : v.toFixed(1); }
-  for (const e of [0, 5, 10, 15, 20, 25, 29]) el("text", {x:X(e), y:Ht-b+26, "text-anchor":"middle"}, svg).textContent = e+1;
+  for (const e of [0, 10, 20, 30, 40, 50, N]) el("text", {x:X(e), y:Ht-b+26, "text-anchor":"middle"}, svg).textContent = e+1;
   el("text", {x:(l+Wd-r)/2, y:Ht-6, "text-anchor":"middle"}, svg).textContent = "訓練輪數（epoch）";
   const series = isLoss ? [["loss","#ffb020","總損失"]] : [["map50","#2fd27f","mAP@.5"],["map","#5aa2ff","mAP@.5:.95"],["P","#c58cff","Precision"],["R","#e07a5f","Recall"]];
   const shown = isLoss ? series : series.filter(s => s[0] === curveKey || (curveKey === "map50" && s[0] === "map"));
@@ -536,7 +536,8 @@ function curveDraw(){
     if (!reduce){ p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.getBoundingClientRect(); p.style.transition = "stroke-dashoffset 1.6s cubic-bezier(.3,.7,.2,1)"; requestAnimationFrame(() => p.style.strokeDashoffset = 0); }
     const lastR = rows[rows.length-1]; const g = el("g", {}, svg); el("circle", {cx:X(lastR.ep), cy:Y(lastR[k]), r:5, fill:col}, g);
     el("text", {x:X(lastR.ep)-8, y:Y(lastR[k]) + (si ? 26 : -14), "text-anchor":"end", style:`fill:${col};font-size:15px;font-weight:600`}, g).textContent = `${name} ${lastR[k].toFixed(3)}`; });
-  if (!isLoss){ el("line", {x1:X(6.5), x2:X(6.5), y1:t, y2:Ht-b, stroke:"#8fa2b3", "stroke-dasharray":"4 5"}, svg); el("text", {x:X(6.5)+8, y:t+16, "text-anchor":"start", style:"font-family:var(--body);fill:#8fa2b3;font-size:14px"}, svg).textContent = "雲端環境中斷後，從第 7 輪接續"; }
+  if (!isLoss){ el("line", {x1:X(6.5), x2:X(6.5), y1:t, y2:Ht-b, stroke:"#8fa2b3", "stroke-dasharray":"4 5"}, svg); el("text", {x:X(6.5)+8, y:t+16, "text-anchor":"start", style:"font-family:var(--body);fill:#8fa2b3;font-size:14px"}, svg).textContent = "雲端環境中斷後，從第 7 輪接續";
+    el("line", {x1:X(29.5), x2:X(29.5), y1:t, y2:Ht-b, stroke:"#2fd27f", "stroke-dasharray":"4 5"}, svg); el("text", {x:X(29.5)+8, y:t+36, "text-anchor":"start", style:"font-family:var(--body);fill:#2fd27f;font-size:14px"}, svg).textContent = "續訓 36 輪（第 31 輪起）"; }
 }
 function barsDraw(){ const box = $("#clsBars"); box.innerHTML = D.classes.map(c => `<div class="b"><span>${c[1]}</span><span class="t"><i style="background:${c[0] === "smoke" ? "#a7b6c6" : c[0] === "gate" ? "#ffb020" : "#2fd27f"}" data-w="${c[5]*100}"></i></span><span class="v">${c[5].toFixed(2)}</span></div>`).join("");
   requestAnimationFrame(() => requestAnimationFrame(() => $$("#clsBars i").forEach(i => i.style.width = i.dataset.w+"%"))); }
